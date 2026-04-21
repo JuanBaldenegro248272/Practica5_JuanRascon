@@ -1,0 +1,38 @@
+package mx.edu.itson.datastorelogin.viewModel
+
+import mx.edu.itson.datastorelogin.data.DataStoreManager
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+
+class AuthViewModel (private val dataStore: DataStoreManager): ViewModel(){
+    val isLoggedIn = dataStore.isLoggedInFlow.stateIn(
+        scope =
+            viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        false
+    )
+
+    val username = dataStore.usernameFlow.stateIn(
+        scope =
+            viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        ""
+    )
+
+    fun login(user: String, pass: String){
+        if (user === "admin" && pass === "1234"){
+            viewModelScope.launch {
+                dataStore.saveSession(user)
+            }
+        }
+    }
+
+    fun logout(){
+        viewModelScope.launch {
+            dataStore.logout()
+        }
+    }
+}
