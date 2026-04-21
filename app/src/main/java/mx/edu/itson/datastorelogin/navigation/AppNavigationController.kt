@@ -9,9 +9,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import mx.edu.itson.datastorelogin.screens.BolsaScreen
+import mx.edu.itson.datastorelogin.screens.CapturarScreen
 import mx.edu.itson.datastorelogin.screens.HomeScreen
 import mx.edu.itson.datastorelogin.screens.LoginScreen
 import mx.edu.itson.datastorelogin.viewModel.AuthViewModel
+import mx.edu.itson.datastorelogin.viewModel.PokemonViewModel
 
 sealed class Screen(val route: String){
         object Login: Screen("login")
@@ -23,7 +26,8 @@ sealed class Screen(val route: String){
 
 @Composable
 fun AppNavigation(
-    authViewModel: AuthViewModel
+    authViewModel: AuthViewModel,
+    pokemonViewModel: PokemonViewModel
 ) {
     val navController = rememberNavController()
 
@@ -49,7 +53,14 @@ fun AppNavigation(
         composable(Screen.Home.route) {
             HomeScreen(
                 userName,
+                navController = navController,
                 onLogoutClick = { authViewModel.logout() })
+        }
+        composable(Screen.Bolsa.route){
+            BolsaScreen(navController, pokemonViewModel)
+        }
+        composable(Screen.Capturar.route) {
+            CapturarScreen(navController, pokemonViewModel)
         }
 
     }

@@ -68,8 +68,3 @@ fun LoginScreen(viewModel: AuthViewModel) {
         }
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun LoginScreenPreview() {
-}
