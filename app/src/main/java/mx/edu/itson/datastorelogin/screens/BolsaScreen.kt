@@ -10,15 +10,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import mx.edu.itson.datastorelogin.navigation.Screen
@@ -28,16 +32,18 @@ import mx.edu.itson.datastorelogin.viewModel.PokemonViewModel
 fun BolsaScreen(
     navController: NavController,
     viewModel: PokemonViewModel
-){
+) {
     LaunchedEffect(Unit) {
         viewModel.cargarPokemones()
     }
 
     Column(
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
     ) {
         Text(
-            text = "Pokemones capturados",
+            text = "Bolsa de Pokémon",
             style = MaterialTheme.typography.headlineMedium
         )
 
@@ -45,64 +51,99 @@ fun BolsaScreen(
 
         Button(
             modifier = Modifier.fillMaxWidth(),
-            onClick = {navController.navigate(Screen.Capturar.route)}
-        ){
-            Text(
-                text = "Atrapar un pokemon"
-            )
+            onClick = { navController.navigate(Screen.Capturar.route) },
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD96C6C), contentColor = Color.White),
+        ) {
+            Text("Ir a capturar")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            modifier = Modifier.fillMaxWidth(),
             value = viewModel.busqueda,
             onValueChange = {
                 viewModel.busqueda = it
                 viewModel.cargarPokemones()
             },
-            label = {Text(text = "Buscar por nombre")}
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Buscar por nombre") }
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(
+            text = "Nivel mínimo: ${viewModel.nivelMinimo.toInt()}",
+            style = MaterialTheme.typography.bodyMedium
+        )
+
+        Slider(
+            value = viewModel.nivelMinimo,
+            onValueChange = {
+                viewModel.nivelMinimo = it
+                viewModel.cargarPokemones()
+            },
+            valueRange = 1f..100f,
+            steps = 98,
+            modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            val tipos = listOf("Todos", "Fuego", "Agua", "Planta")
-            tipos.forEach { tipo ->
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            val tipos = listOf("Todos", "Fuego", "Agua", "Planta", "Electrico")
+            items(tipos) { tipo ->
                 Button(
-                    modifier = Modifier.weight(1f),
                     onClick = {
                         viewModel.typeSelected = tipo
                         viewModel.cargarPokemones()
-                    }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFF2F2F2),
+                        contentColor = Color(0xFF333333)
+                    )
                 ) {
-                    Text(text = tipo, style = MaterialTheme.typography.bodySmall)
+                    Text(tipo)
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(viewModel.pokemones) { p ->
-                Card(modifier = Modifier.padding(vertical = 4.dp).fillMaxWidth()) {
+        LazyColumn {
+            items(viewModel.pokemones) { pokemon ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp)
+                ) {
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(
-                            text = "#${p.number} - ${p.name}",
-                            style = MaterialTheme.typography.titleLarge
+                            text = "${pokemon.name} - Nivel ${pokemon.level}",
+                            style = MaterialTheme.typography.titleMedium
                         )
-                        Text(text = "Tipo: ${p.type} | Nivel: ${p.level}")
+                        Text("No. ${pokemon.number}")
+                        Text("Tipo: ${pokemon.type}")
 
-                        Row(modifier = Modifier.padding(top = 8.dp)) {
-                            Button(onClick = { viewModel.tryLevelUp(p) }) {
-                                Text("Subir Nivel")
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Row {
+                            Button(colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFFD96C6C),
+                                contentColor = Color.White),
+                                onClick = { viewModel.tryLevelUp(pokemon) }) {
+                                Text("Subir nivel")
                             }
 
                             Spacer(modifier = Modifier.width(8.dp))
 
                             Button(
-                                onClick = { viewModel.deletePokemon(p) }
-                            ) {
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFFF2F2F2),
+                                    contentColor = Color(0xFF333333)),
+                                onClick = { viewModel.deletePokemon(pokemon) }) {
                                 Text("Liberar")
                             }
                         }

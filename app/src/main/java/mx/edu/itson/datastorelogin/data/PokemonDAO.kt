@@ -23,7 +23,13 @@ interface PokemonDAO {
     @Update
     suspend fun update(pokemon: PokemonEntity)
 
-    @Query("SELECT * FROM pokemon_table WHERE name LIKE :searchQuery OR type LIKE :searchQuery AND :typeFilter = 'Todos' OR type = :typeFilter AND level >= :level1")
+    @Query("""
+    SELECT * FROM pokemon_table
+    WHERE name LIKE :searchQuery
+    AND (:typeFilter = 'Todos' OR type = :typeFilter)
+    AND level >= :level1
+    ORDER BY number ASC
+    """)
     fun getFilteredPokemones(
         searchQuery: String,
         typeFilter: String,

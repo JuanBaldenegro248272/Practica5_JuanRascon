@@ -20,16 +20,18 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val database = PokemonDatabase.getDatabase(this)
+        val repository = PokemonRepository(database.pokemonDAO())
         val authViewModel = AuthViewModel(DataStoreManager(this))
-        val pokemonViewModel = PokemonViewModel(PokemonRepository(PokemonDatabase.getDatabase(this).pokemonDAO()))
+        val pokemonViewModel = PokemonViewModel(repository)
         setContent {
-            DataStoreLoginTheme {
-                AppNavigation(authViewModel, pokemonViewModel)
-            }
+            AppNavigation(
+                authViewModel = authViewModel,
+                pokemonViewModel = pokemonViewModel
+            )
         }
     }
 }
-
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Text(
